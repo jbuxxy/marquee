@@ -1,0 +1,66 @@
+/* 13 extra themes beyond dark/light (already in base.css). Each overrides the
+   same base variable set; there are no per-theme background effects. */
+
+:root[data-theme="cyberpunk"] {
+  --bg: #0a0014; --bg-elevated: #150022; --border: #33004d; --text: #f5e6ff; --text-muted: #b98fd6;
+  --accent: #ff00aa; --accent-contrast: #ffffff; --success: #00ff88; --danger: #ff3860;
+}
+:root[data-theme="synthwave"] {
+  --bg: #1a1025; --bg-elevated: #251536; --border: #3d2352; --text: #f3e8ff; --text-muted: #b79fd6;
+  --accent: #ff6ec7; --accent-contrast: #1a1025; --success: #4deeea; --danger: #ff5277;
+}
+:root[data-theme="nord"] {
+  --bg: #2e3440; --bg-elevated: #3b4252; --border: #4c566a; --text: #eceff4; --text-muted: #9aa5b8;
+  --accent: #88c0d0; --accent-contrast: #2e3440; --success: #a3be8c; --danger: #bf616a;
+}
+:root[data-theme="dracula"] {
+  --bg: #282a36; --bg-elevated: #343746; --border: #44475a; --text: #f8f8f2; --text-muted: #a9abc0;
+  --accent: #50fa7b; --accent-contrast: #282a36; --success: #50fa7b; --danger: #ff5555;
+}
+:root[data-theme="solarized"] {
+  --bg: #fdf6e3; --bg-elevated: #ffffff; --border: #eee8d5; --text: #073642; --text-muted: #657b83;
+  --accent: #2aa198; --accent-contrast: #ffffff; --success: #859900; --danger: #dc322f;
+}
+:root[data-theme="matrix"] {
+  --bg: #030a05; --bg-elevated: #071a0d; --border: #103a1c; --text: #b6ffb8; --text-muted: #4fae5c;
+  --accent: #00ff41; --accent-contrast: #030a05; --success: #00ff41; --danger: #ff4141;
+}
+:root[data-theme="abyss"] {
+  --bg: #04141c; --bg-elevated: #082230; --border: #123648; --text: #dff7f2; --text-muted: #6fa8ac;
+  --accent: #2debc4; --accent-contrast: #04141c; --success: #2debc4; --danger: #ff6b6b;
+}
+:root[data-theme="galaxy"] {
+  --bg: #06040d; --bg-elevated: #100b1f; --border: #241a3d; --text: #ece6ff; --text-muted: #a596c9;
+  --accent: #af5aff; --accent-contrast: #ffffff; --success: #5ec8ff; --danger: #ff6ec7;
+}
+:root[data-theme="frost"] {
+  --bg: #e6f2fa; --bg-elevated: #ffffff; --border: #cfe3f0; --text: #0f2c3a; --text-muted: #4c7284;
+  --accent: #4abef0; --accent-contrast: #ffffff; --success: #3bb587; --danger: #e0555f;
+}
+:root[data-theme="volcanic"] {
+  --bg: #100604; --bg-elevated: #1e0d09; --border: #3a1712; --text: #ffe3d6; --text-muted: #c98a71;
+  --accent: #ff5622; --accent-contrast: #ffffff; --success: #ffb347; --danger: #ff2d00;
+}
+:root[data-theme="royal"] {
+  --bg: #150a28; --bg-elevated: #221238; --border: #3a2158; --text: #f3e9ff; --text-muted: #b39ed6;
+  --accent: #e0b446; --accent-contrast: #150a28; --success: #6fce8f; --danger: #d2609a;
+}
+:root[data-theme="retrocrt"] {
+  --bg: #f8ecf2; --bg-elevated: #ffffff; --border: #eecede; --text: #241222; --text-muted: #6b4a63;
+  --accent: #00c2a8; --accent-contrast: #ffffff; --success: #00c2a8; --danger: #ff6ec7;
+}
+:root[data-theme="autumn"] {
+  --bg: #1c0f08; --bg-elevated: #2c1a10; --border: #4a2c1a; --text: #ffe8d1; --text-muted: #cc9a70;
+  --accent: #e07a2a; --accent-contrast: #ffffff; --success: #9caf50; --danger: #c1440e;
+}
+
+/* Theme picker dropdown panel */
+.theme-panel {
+  display: none; position: fixed; z-index: 1000; background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px; max-height: 60vh; overflow-y: auto; min-width: 180px;
+}
+.theme-panel.open { display: block; }
+.theme-opt { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: var(--text); }
+.theme-opt:hover { background: var(--bg); }
+.theme-opt.sel { background: var(--accent); color: var(--accent-contrast); }
+.theme-swatch { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255, 255, 255, 0.2); }

@@ -1,0 +1,9 @@
+node_modules/
+config/settings.json
+config/session-secret
+config/branding/
+.env
+*.log
+.DS_Store
+config/visitor-session-secret
+redis-data/

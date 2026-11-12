@@ -1,0 +1,12 @@
+.git
+.github
+docs
+test
+node_modules
+config/settings.json
+config/session-secret
+config/visitor-session-secret
+redis-data
+config/branding
+*.md
+.env

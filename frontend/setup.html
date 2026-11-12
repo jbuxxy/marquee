@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <script src="js/theme-init.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marquee — Setup</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Marquee setup</h1>
+    <div class="spacer"></div>
+    <button class="secondary" id="theme-toggle">Toggle theme</button>
+  </header>
+
+  <main>
+    <section id="login-section">
+      <h2>1. Log in</h2>
+      <p>Use the admin password printed to the container logs on first boot (<code>docker logs &lt;container&gt;</code>).</p>
+      <form id="login-form">
+        <input type="password" id="login-password" placeholder="Admin password" required>
+        <button type="submit">Log in</button>
+      </form>
+      <p id="login-error" class="error-text"></p>
+    </section>
+
+    <section id="setup-section" class="settings-form" hidden>
+      <h2>2. Required connections</h2>
+      <p>Seerr, and at least one of Plex or Jellyfin, are required before the dashboard unlocks. Everything else can be added later from admin settings.</p>
+      <form id="setup-form">
+        <fieldset data-service="seerr">
+          <legend>Seerr <span class="badge unconfigured">required</span></legend>
+          <label>URL <input type="text" name="services.seerr.url" placeholder="https://seerr.example.com"></label>
+          <label>API key <input type="password" name="services.seerr.apiKey" placeholder="API key"></label>
+          <div class="field-row"><button type="button" class="secondary test-btn" data-test="seerr">Test connection</button><span class="test-result" id="test-result-seerr"></span></div>
+        </fieldset>
+        <fieldset data-service="plex">
+          <legend>Plex <span class="badge unconfigured">one of Plex/Jellyfin required</span></legend>
+          <label>URL <input type="text" name="services.plex.url" placeholder="http://plex.local:32400"></label>
+          <label>Token <input type="password" name="services.plex.token" placeholder="Plex token"></label>
+          <div class="field-row"><button type="button" class="secondary test-btn" data-test="plex">Test connection</button><span class="test-result" id="test-result-plex"></span></div>
+        </fieldset>
+        <fieldset data-service="jellyfin">
+          <legend>Jellyfin <span class="badge unconfigured">one of Plex/Jellyfin required</span></legend>
+          <label>URL <input type="text" name="services.jellyfin.url" placeholder="http://jellyfin.local:8096"></label>
+          <label>API key <input type="password" name="services.jellyfin.apiKey" placeholder="API key"></label>
+          <div class="field-row"><button type="button" class="secondary test-btn" data-test="jellyfin">Test connection</button><span class="test-result" id="test-result-jellyfin"></span></div>
+        </fieldset>
+        <button type="submit">Save and continue</button>
+      </form>
+      <p id="setup-error" class="error-text"></p>
+      <p id="setup-status" class="status-text"></p>
+    </section>
+  </main>
+
+  <script src="js/util.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/setup-wizard.js"></script>
+</body>
+</html>

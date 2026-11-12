@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <script src="js/theme-init.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marquee — Admin</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Marquee admin</h1>
+    <div class="spacer"></div>
+    <button class="secondary" id="theme-toggle">Toggle theme</button>
+  </header>
+
+  <main>
+    <section id="login-section">
+      <h2>Log in</h2>
+      <form id="login-form">
+        <input type="password" id="login-password" placeholder="Admin password" required>
+        <button type="submit">Log in</button>
+      </form>
+      <p id="login-error" class="error-text"></p>
+    </section>
+
+    <section id="settings-section" hidden>
+      <div class="field-row" style="justify-content: space-between; margin-bottom: 16px;">
+        <a href="/">&larr; Back to dashboard</a>
+        <button class="secondary" id="logout-btn">Log out</button>
+      </div>
+
+      <div class="admin-tabs" id="admin-tabs" role="tablist">
+        <button class="admin-tab active" data-tab="branding" role="tab">Branding</button>
+        <button class="admin-tab" data-tab="services" role="tab">Services</button>
+        <button class="admin-tab" data-tab="media-server" role="tab">Media server</button>
+        <button class="admin-tab" data-tab="extra-links" role="tab">Extra links</button>
+        <button class="admin-tab" data-tab="display" role="tab">Display</button>
+        <button class="admin-tab" data-tab="map-privacy" role="tab">Map &amp; privacy</button>
+        <button class="admin-tab" data-tab="digital-dates" role="tab">Digital release dates</button>
+        <button class="admin-tab" data-tab="security" role="tab">Security</button>
+      </div>
+
+      <div class="admin-tab-panel active" data-panel="branding">
+        <h2>Branding</h2>
+        <div id="branding-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="services">
+        <h2>Services</h2>
+        <form id="settings-form" class="settings-form"></form>
+        <button type="submit" form="settings-form">Save settings</button>
+        <p id="settings-error" class="error-text"></p>
+        <p id="settings-status" class="status-text"></p>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="media-server">
+        <h2>Media server</h2>
+        <div id="media-server-section"></div>
+
+        <h2 style="margin-top:28px;">Excluded libraries</h2>
+        <div id="library-exclusions-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="extra-links">
+        <h2>Extra links</h2>
+        <p class="status-text">Add your own cards (rendered in the dashboard's services grid) or bookmark links (rendered in the footer) — for anything marquee doesn't have a built-in integration for.</p>
+        <div id="custom-links-section"></div>
+
+        <h2 style="margin-top:28px;">Guides</h2>
+        <p class="status-text">Upload PDF guides (streaming setup, audio app instructions, etc.) to show as a row of pills below the services grid. Optionally add a "Need access?" contact card alongside them.</p>
+        <div id="guides-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="display">
+        <h2>Display</h2>
+        <div id="display-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="map-privacy">
+        <h2>Map &amp; privacy</h2>
+        <div id="map-privacy-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="digital-dates">
+        <h2>Digital release dates</h2>
+        <div id="digital-dates-section"></div>
+      </div>
+
+      <div class="admin-tab-panel" data-panel="security">
+        <h2>Change admin password</h2>
+        <form id="password-form">
+          <label>New password <input type="password" name="newPassword" placeholder="Min 8 characters" required></label>
+          <button type="submit">Change password</button>
+        </form>
+        <p id="password-error" class="error-text"></p>
+        <p id="password-status" class="status-text"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/util.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

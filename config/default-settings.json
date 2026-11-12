@@ -1,0 +1,9 @@
+{
+  "site": {
+    "siteName": "Marquee",
+    "theme": "dark",
+    "anonymizeUsers": "optional",
+    "enableSeasonalEffects": "true",
+    "enableExtraThemes": "true"
+  }
+}

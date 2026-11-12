@@ -1,0 +1,104 @@
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0; background: var(--accent);
+  z-index: 9999; transition: transform 0.2s, opacity 0.4s;
+}
+#particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.site-header, main, footer { position: relative; z-index: 1; }
+
+/* Logo idle animations — glitch, chromatic aberration, click pulse ring */
+.logo-wrap { cursor: pointer; }
+.site-header .logo { transition: filter 0.3s ease, transform 0.3s ease; }
+
+@keyframes logoGlitch {
+  0%   { transform: translate(0,0);     filter: brightness(1) saturate(1); }
+  8%   { transform: translate(-2px,0);  filter: brightness(2.0) hue-rotate(90deg)  saturate(8) contrast(1.4); }
+  16%  { transform: translate(2px,-1px);filter: brightness(0.5) hue-rotate(-90deg) saturate(6); }
+  24%  { transform: translate(-1px,1px);filter: brightness(1.8) hue-rotate(160deg) saturate(7); }
+  32%  { transform: translate(0,0);     filter: brightness(1) saturate(1); }
+  40%  { transform: translate(1px,-1px);filter: brightness(0.6) hue-rotate(-60deg) saturate(5) contrast(1.3); }
+  48%  { transform: translate(-2px,0);  filter: brightness(1.9) hue-rotate(110deg) saturate(9); }
+  56%  { transform: translate(1px,0);   filter: brightness(0.75) hue-rotate(30deg); }
+  64%  { transform: translate(-1px,-1px);filter: brightness(1.6) hue-rotate(-120deg) saturate(6); }
+  72%  { transform: translate(0,0);     filter: brightness(1) saturate(1); }
+  80%  { transform: translate(-1px,1px);filter: brightness(1.4) hue-rotate(70deg) saturate(4); }
+  88%  { transform: translate(1px,-1px);filter: brightness(0.8) hue-rotate(-40deg) saturate(3); }
+  100% { transform: translate(0,0);     filter: brightness(1) saturate(1); }
+}
+.site-header .logo.glitching { animation: logoGlitch 0.6s steps(8) both !important; transition: none !important; }
+
+.site-header .logo.logo-ca {
+  filter: drop-shadow(2px 0 0 rgba(255,0,60,0.65)) drop-shadow(-2px 0 0 rgba(0,220,255,0.65)) !important;
+  transition: none !important;
+}
+[data-theme="light"] .site-header .logo.logo-ca {
+  filter: drop-shadow(2px 0 0 rgba(200,0,40,0.55)) drop-shadow(-2px 0 0 rgba(0,160,210,0.55)) !important;
+}
+
+.logo-pulse-ring {
+  position: fixed; border: 1.5px solid var(--accent); border-radius: 10px;
+  box-shadow: 0 0 16px rgba(41,171,226,0.45); pointer-events: none; z-index: 200;
+  animation: logoPulseRing 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes logoPulseRing {
+  from { transform: scale(1);   opacity: 0.85; }
+  to   { transform: scale(2.4); opacity: 0;    }
+}
+
+.reveal-ready { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal-ready.revealed { opacity: 1; transform: translateY(0); }
+
+/* Command palette */
+#cmd-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 900;
+  align-items: flex-start; justify-content: center; padding-top: 12vh;
+}
+#cmd-overlay.open { display: flex; }
+#cmd-modal {
+  width: min(520px, 92vw); max-height: 60vh; background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+}
+#cmd-input-wrap { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+#cmd-input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 0.95rem; outline: none; }
+#cmd-hint { font-size: 0.68rem; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+#cmd-results { overflow-y: auto; padding: 6px 0; }
+.cmd-section-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); padding: 6px 14px 2px; }
+.cmd-item {
+  width: 100%; display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--text);
+  padding: 7px 14px; font-size: 0.85rem; text-align: left; cursor: pointer;
+}
+.cmd-item:hover, .cmd-item.focused { background: var(--bg); }
+.cmd-item-hint { margin-left: auto; font-size: 0.68rem; color: var(--text-muted); }
+.cmd-no-results { padding: 16px; color: var(--text-muted); font-size: 0.85rem; text-align: center; }
+
+/* Keyboard shortcuts */
+#shortcuts-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 900; align-items: center; justify-content: center;
+}
+#shortcuts-overlay.open { display: flex; }
+#shortcuts-modal { width: min(420px, 92vw); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+#shortcuts-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 600; }
+#shortcuts-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; }
+.sc-group { margin-bottom: 12px; }
+.sc-group-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.sc-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 0.85rem; }
+.sc-key { border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; background: var(--bg); }
+.sc-plus { margin: 0 3px; color: var(--text-muted); }
+
+/* Now casting */
+#casting-overlay {
+  display: none; position: fixed; inset: 0; background: #000; z-index: 950; align-items: center; justify-content: center; flex-direction: column;
+}
+#casting-overlay.open { display: flex; }
+#casting-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(40px) brightness(0.4); }
+#casting-content { position: relative; text-align: center; color: #fff; z-index: 1; }
+#casting-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; margin-bottom: 16px; }
+#casting-poster { max-height: 45vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); }
+#casting-title { font-size: 1.6rem; font-weight: 700; margin-top: 20px; }
+#casting-meta { font-size: 0.9rem; opacity: 0.7; margin-top: 6px; }
+#casting-dots { display: flex; gap: 6px; justify-content: center; margin-top: 20px; }
+.casting-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); cursor: pointer; }
+.casting-dot.active { background: #fff; }
+#casting-close {
+  position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff; border-radius: 999px; padding: 6px 14px; cursor: pointer; z-index: 2;
+}

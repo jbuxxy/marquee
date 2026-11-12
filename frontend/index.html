@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <!-- Applies the stored theme before first paint so there's no flash of
+       the wrong theme while js/theme.js is still loading. -->
+  <script src="js/theme-init.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marquee</title>
+  <link rel="icon" id="favicon-link" href="/branding/favicon">
+  <meta name="description" content="Your self-hosted media hub.">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/nowplaying.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/heatmap.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/effects.css">
+  <link rel="stylesheet" href="css/seasonal.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.44.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+  <div id="progress-bar"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <div class="header-hero">
+      <div class="logo-wrap">
+        <img id="site-logo" class="logo" src="/branding/logo" alt="logo">
+        <div id="xmas-countdown"></div>
+      </div>
+      <!-- Screen-reader title; the logo image is the visible brand mark. -->
+      <h1 id="site-title" class="sr-only">Marquee</h1>
+      <p class="greeting" id="greeting"></p>
+      <div class="clock-line">
+        <span id="live-clock">--:-- --</span>
+        <div class="clock-sep"></div>
+        <span id="live-date"></span>
+      </div>
+      <div class="header-accent-line"></div>
+      <p class="header-sub" id="header-tagline">Your self-hosted media hub</p>
+    </div>
+    <nav class="header-nav">
+      <button class="secondary" id="heatmap-btn" aria-label="Activity heatmap" title="Activity heatmap" hidden>Activity</button>
+      <button class="secondary" id="seasonal-btn" aria-label="Seasonal flair" title="Seasonal flair" hidden>&#127881;</button>
+      <button class="secondary" id="cmd-bar-btn" aria-label="Command palette" title="Command palette (?)">Commands</button>
+      <button class="secondary" id="shortcuts-btn" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (Shift+?)" data-action="openShortcuts">?</button>
+      <button class="secondary" id="theme-toggle">Toggle theme</button>
+      <div id="visitor-auth-slot" hidden>
+        <span id="visitor-auth-badge" hidden></span>
+        <button class="secondary" id="visitor-signin-btn" hidden>Sign in</button>
+        <button class="secondary" id="visitor-signout-btn" hidden>Sign out</button>
+      </div>
+      <a href="/admin"><button class="secondary">Admin</button></a>
+    </nav>
+  </header>
+
+  <!-- VISITOR SIGN-IN (Plex OAuth / Jellyfin login — only shown once at least one media
+       server is configured; unauthenticated visitors still see the full public dashboard,
+       signing in just personalizes recommendations/requests) -->
+  <div id="visitor-login-overlay" role="dialog" aria-modal="true" aria-label="Sign in">
+    <div id="visitor-login-modal">
+      <div class="hm-header">
+        <span class="hm-title">Sign in</span>
+        <button class="hm-close" id="visitor-login-close" aria-label="Close">&#10005;</button>
+      </div>
+      <div id="visitor-login-plex-view">
+        <p id="visitor-login-body" class="visitor-login-copy">Sign in with your Plex account to unlock personalized recommendations and requests.</p>
+        <button class="secondary" id="visitor-login-plex-btn">Sign in with Plex</button>
+        <button class="visitor-link-btn" id="visitor-login-jellyfin-link" hidden>Sign in with Jellyfin instead</button>
+      </div>
+      <div id="visitor-login-jellyfin-view" hidden>
+        <p class="visitor-login-copy">Sign in with your Jellyfin account.</p>
+        <input id="visitor-jellyfin-username" type="text" autocomplete="username" placeholder="Username">
+        <input id="visitor-jellyfin-password" type="password" autocomplete="current-password" placeholder="Password">
+        <div id="visitor-jellyfin-error" class="visitor-login-error"></div>
+        <button class="secondary" id="visitor-jellyfin-submit-btn">Sign in</button>
+        <button class="visitor-link-btn" id="visitor-login-use-plex-link" hidden>Use Plex instead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMAND PALETTE -->
+  <div id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command palette" aria-hidden="true">
+    <div id="cmd-modal">
+      <div id="cmd-input-wrap">
+        <input id="cmd-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type a command…">
+        <kbd id="cmd-hint">Esc</kbd>
+      </div>
+      <div id="cmd-results"></div>
+    </div>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS -->
+  <div id="shortcuts-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <div id="shortcuts-modal">
+      <div id="shortcuts-header">
+        <span>Keyboard Shortcuts</span>
+        <button id="shortcuts-close" aria-label="Close">&#10005;</button>
+      </div>
+      <div id="shortcuts-body"></div>
+    </div>
+  </div>
+
+  <!-- NOW CASTING FULLSCREEN -->
+  <div id="casting-overlay" aria-hidden="true">
+    <div id="casting-bg"></div>
+    <div id="casting-content">
+      <div id="casting-label">Now Casting</div>
+      <img id="casting-poster" src="" alt="" data-img-fallback="hide">
+      <div id="casting-title"></div>
+      <div id="casting-meta"></div>
+      <div id="casting-dots"></div>
+    </div>
+    <button id="casting-close" aria-label="Exit casting mode">&#10005; Exit <kbd>Esc</kbd></button>
+  </div>
+
+  <!-- LIVE MAP PANEL -->
+  <button class="secondary" id="np-map-btn" aria-label="Live map" title="Live map" hidden style="position:fixed;right:16px;bottom:16px;z-index:400;">Map</button>
+  <div id="np-map-panel" aria-hidden="true">
+    <div id="np-map-header">
+      <div class="np-map-mode-wrap">
+        <button class="np-map-mode-btn active" data-mode="geo">Geo</button>
+        <button class="np-map-mode-btn" data-mode="network">Network</button>
+        <button class="np-network-style-btn" id="np-network-style-btn" title="Cycle network visual style (orbit/radar/matrix)">Orbit</button>
+      </div>
+      <span id="np-map-status" class="np-map-status"></span>
+      <button class="np-map-close-btn" id="np-map-close" aria-label="Close map">&#10005;</button>
+    </div>
+    <div id="np-map-container"></div>
+  </div>
+
+  <!-- SEERR AUTO-APPROVE REQUEST PICKER (shown instead of a plain confirm for visitors
+       who can auto-approve their own requests) -->
+  <div id="seerr-picker-overlay" role="dialog" aria-modal="true" aria-label="Request">
+    <div id="seerr-picker-modal">
+      <div class="hm-header">
+        <span class="hm-title" id="seerr-picker-title">Request</span>
+        <button class="hm-close" id="seerr-picker-close" aria-label="Close">&#10005;</button>
+      </div>
+      <div id="seerr-picker-loading">Loading…</div>
+      <div id="seerr-picker-form" hidden>
+        <label class="seerr-picker-label">Quality Profile</label>
+        <select id="seerr-picker-profile"></select>
+        <label class="seerr-picker-label">Root Folder</label>
+        <select id="seerr-picker-rootfolder"></select>
+        <div id="seerr-picker-lang-wrap" hidden>
+          <label class="seerr-picker-label">Language Profile</label>
+          <select id="seerr-picker-lang"></select>
+        </div>
+        <div id="seerr-picker-4k-wrap" class="seerr-picker-checkbox-row" hidden>
+          <label><input type="checkbox" id="seerr-picker-4k-checkbox"> Also request in 4K</label>
+        </div>
+        <div id="seerr-picker-error" class="visitor-login-error"></div>
+        <div class="seerr-picker-actions">
+          <button class="secondary" id="seerr-picker-cancel-btn">Cancel</button>
+          <button class="secondary" id="seerr-picker-submit-btn">Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATMAP MODAL -->
+  <div id="heatmap-overlay" role="dialog" aria-modal="true" aria-label="Activity Heatmap">
+    <div id="heatmap-modal">
+      <div class="hm-header">
+        <span class="hm-title">Activity</span>
+        <button class="hm-close" id="hm-close-btn" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="hm-controls">
+        <div class="hm-tabs">
+          <button class="hm-tab active" data-hm-tab="calendar">Calendar</button>
+          <button class="hm-tab" data-hm-tab="24h">24h Grid</button>
+          <button class="hm-tab" data-hm-tab="map" hidden>Geo Map</button>
+        </div>
+        <div class="hm-presets" id="hm-presets">
+          <button class="hm-preset active" data-days="30">30d</button>
+          <button class="hm-preset" data-days="90">90d</button>
+          <button class="hm-preset" data-days="180">6mo</button>
+          <button class="hm-preset" data-days="365">1yr</button>
+        </div>
+      </div>
+      <div id="hm-body"><div class="hm-loading">Loading…</div></div>
+      <div class="hm-legend">
+        <span>Less</span>
+        <div class="hm-legend-cells">
+          <div class="hm-legend-cell" style="background:rgba(255,255,255,0.04)"></div>
+          <div class="hm-legend-cell" data-level="1"></div>
+          <div class="hm-legend-cell" data-level="2"></div>
+          <div class="hm-legend-cell" data-level="3"></div>
+          <div class="hm-legend-cell" data-level="4"></div>
+          <div class="hm-legend-cell" data-level="5"></div>
+        </div>
+        <div class="hm-palette-wrap">
+          <span>More</span>
+          <div class="hm-palette-row" id="hm-palette-row">
+            <button class="hm-pal-swatch active" data-palette="cyber" title="Cyber" style="background:linear-gradient(135deg,#29abe2,#cb86ff)"></button>
+            <button class="hm-pal-swatch" data-palette="ember" title="Ember" style="background:linear-gradient(135deg,#e5a00d,#ef4444)"></button>
+            <button class="hm-pal-swatch" data-palette="matrix" title="Matrix" style="background:linear-gradient(135deg,#22c55e,#83c02a)"></button>
+            <button class="hm-pal-swatch" data-palette="sakura" title="Sakura" style="background:linear-gradient(135deg,#ffb6c1,#ec4899)"></button>
+            <button class="hm-pal-swatch" data-palette="gold" title="Gold" style="background:linear-gradient(135deg,#f6be4e,#b46e00)"></button>
+            <button class="hm-pal-swatch" data-palette="ocean" title="Ocean" style="background:linear-gradient(135deg,#06b6d4,#059669)"></button>
+            <button class="hm-pal-swatch" data-palette="mono" title="Mono" style="background:linear-gradient(135deg,#555,#ddd)"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOW PLAYING BAR -->
+  <div class="now-playing-bar" id="now-playing-bar">
+    <div class="np-header">
+      <div class="np-drag-handle" aria-hidden="true">
+        <svg viewBox="0 0 6 20" width="6" height="20">
+          <circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/>
+          <circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="1.5" cy="12" r="1" fill="currentColor"/>
+          <circle cx="1.5" cy="15.5" r="1" fill="currentColor"/><circle cx="1.5" cy="19" r="1" fill="currentColor"/>
+          <circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/>
+          <circle cx="4.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/>
+          <circle cx="4.5" cy="15.5" r="1" fill="currentColor"/><circle cx="4.5" cy="19" r="1" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="np-live"><div class="np-dot"></div><span>Live</span></div>
+      <div class="np-header-spacer"></div>
+      <button class="np-anon-btn" id="np-anon-btn" aria-label="Anonymize usernames" title="Anonymize usernames" hidden><i class="np-icon-ghost">&#128123;</i></button>
+      <button class="np-expand-btn" id="np-expand-btn" data-action="toggleNpExpand" aria-label="Expand details">&#9650;</button>
+      <button class="np-close-tab" id="np-close-tab" data-action="dismissNowPlaying" aria-label="Dismiss">&#10005;</button>
+    </div>
+    <div class="np-body" id="np-body">
+      <div class="np-bar-content" id="np-bar-content">
+        <div class="np-icon" id="np-icon"></div>
+        <img class="np-thumb" id="np-thumb" src="" alt="" style="display:none" data-img-fallback="hide">
+        <div class="np-ticker" id="np-ticker"></div>
+        <div class="np-dots" id="np-dots" aria-hidden="true"></div>
+        <div class="np-progress-sliver" id="np-progress-sliver" aria-hidden="true">
+          <div class="np-progress-sliver-fill" id="np-progress-fill"></div>
+        </div>
+      </div>
+      <div class="np-expand-panel" id="np-expand-panel" aria-hidden="true">
+        <div class="np-expand-inner" id="np-expand-inner"></div>
+      </div>
+    </div>
+  </div>
+  <button class="np-revive" id="np-revive-btn" data-action="reviveNowPlaying" title="Show live streams">
+    <div class="np-dot"></div><span>Live</span>
+  </button>
+
+  <main>
+    <section class="dashboard-section waveform-section">
+      <div class="ekg-wrap">
+        <canvas id="ekg-canvas" aria-hidden="true"></canvas>
+        <button id="ekg-mode-btn" title="Toggle waveform mode" aria-label="Toggle waveform mode">
+          <i class="ti ti-wave-sine" id="ekg-mode-icon"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="dashboard-section" id="search-wrap">
+      <input class="search-input" id="search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Search movies, TV, music, audiobooks… (press /)">
+      <div class="search-results" id="search-results"></div>
+    </section>
+
+    <!-- REQUEST — Seerr + any admin-added custom link cards. Hidden entirely
+         if nothing of this kind is configured, not just left as an empty grid. -->
+    <section class="dashboard-section" id="requests-section-wrap" hidden>
+      <div class="section-divider"><span class="divider-line"></span><h2>Request</h2><span class="divider-line"></span></div>
+      <div id="requests-cards-root" class="cards-grid"></div>
+    </section>
+
+    <!-- WATCH & LISTEN — Plex/Jellyfin/AudioBookShelf. Same graceful-hide rule. -->
+    <section class="dashboard-section" id="watch-section-wrap" hidden>
+      <div class="section-divider"><span class="divider-line"></span><h2>Watch &amp; Listen</h2><span class="divider-line"></span></div>
+      <div id="watch-cards-root" class="cards-grid"></div>
+    </section>
+
+    <!-- ACTIVITY INSIGHTS (Tautulli) -->
+    <section class="dashboard-section" id="insights-wrap" hidden>
+      <button class="insights-header" id="insights-header" aria-expanded="false">
+        <span>Activity Insights</span>
+        <span id="insights-preview" class="insights-preview"></span>
+      </button>
+      <div class="insights-body">
+        <div class="stats-chips" id="stats-chips"></div>
+      </div>
+    </section>
+
+    <!-- NEW RECOMMENDATIONS (movies/tv + audiobooks — personalized, signed-in visitors only) -->
+    <section class="dashboard-section" id="rec-wrap" hidden>
+      <div class="section-divider"><span class="divider-line"></span><h2>New Recommendations</h2><span class="divider-line"></span></div>
+      <div class="carousel-header">
+        <div class="carousel-tabs" id="rec-pills"></div>
+        <div class="carousel-nav">
+          <button class="secondary" id="rec-arrow-left" aria-label="Scroll left">&lsaquo;</button>
+          <button class="secondary" id="rec-arrow-right" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+      </div>
+      <p id="rec-based-on" class="rec-based-on"></p>
+      <div class="carousel-track" id="rec-track"></div>
+    </section>
+
+    <!-- RECENTLY ADDED -->
+    <section class="dashboard-section" id="carousel-section" hidden>
+      <div class="section-divider"><span class="divider-line"></span><h2>Recently Added</h2><span class="divider-line"></span></div>
+      <div class="carousel-header">
+        <div class="carousel-tabs" id="carousel-tabs"></div>
+        <div class="carousel-nav">
+          <button class="secondary" id="carousel-arrow-left" aria-label="Scroll left">&lsaquo;</button>
+          <button class="secondary" id="carousel-arrow-right" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+      </div>
+      <div class="carousel-track" id="carousel-track"></div>
+    </section>
+
+    <!-- COMING SOON -->
+    <section class="dashboard-section" id="upcoming-wrap" hidden>
+      <div class="section-divider"><span class="divider-line"></span><h2>Coming Soon</h2><span class="divider-line"></span></div>
+      <div class="carousel-track" id="upcoming-strip"></div>
+    </section>
+
+    <!-- GUIDES (admin-uploaded PDFs + optional "need access" contact card) —
+         always the last section on the page. -->
+    <section class="dashboard-section" id="guides-wrap" hidden>
+      <div class="resource-dock" id="resource-dock"></div>
+    </section>
+
+  </main>
+
+  <footer id="bookmarks-bar" class="bookmarks-bar" hidden></footer>
+
+  <script src="js/util.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/header-clock.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/watch-services.js"></script>
+  <script src="js/anon.js"></script>
+  <script src="js/deeplink.js"></script>
+  <script src="js/search-helpers.js"></script>
+  <script src="js/visitor-auth.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/guides.js"></script>
+  <script src="js/bookmarks.js"></script>
+  <script src="js/nowplaying.js"></script>
+  <script src="js/waveform.js"></script>
+  <script src="js/carousel.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/service-status.js"></script>
+  <script src="js/requests.js"></script>
+  <script src="js/seerr-request-picker.js"></script>
+  <script src="js/recommendations.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/geo-utils.js"></script>
+  <script src="js/heatmap.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/map/geo.js"></script>
+  <script src="js/map/network.js"></script>
+  <script src="js/casting.js"></script>
+  <script src="js/shortcuts.js"></script>
+  <script src="js/command-palette.js"></script>
+  <script src="js/ui-effects.js"></script>
+  <script src="js/seasonal.js"></script>
+</body>
+</html>

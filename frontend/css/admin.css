@@ -1,0 +1,122 @@
+.settings-form fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  padding: 14px 16px;
+}
+.settings-form legend {
+  padding: 0 6px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-form label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.settings-form input { display: block; width: 100%; margin-top: 4px; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.badge.env { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+.badge.configured { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+.badge.unconfigured { background: var(--border); color: var(--text-muted); }
+
+.test-result { font-size: 0.82rem; }
+.test-result.ok { color: var(--success); }
+.test-result.fail { color: var(--danger); }
+
+.branding-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.branding-row img { height: 40px; width: auto; border-radius: 6px; background: var(--bg); }
+.branding-row .branding-actions { display: flex; gap: 8px; margin-left: auto; }
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+.admin-tab {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.admin-tab.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.admin-tab-panel { display: none; }
+.admin-tab-panel.active { display: block; }
+
+.custom-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.custom-link-row input, .custom-link-row select { margin: 0; }
+.custom-link-row > input[data-field="label"], .custom-link-row > input[data-field="url"] { flex: 1 1 160px; }
+.custom-link-row .card-icon-hint { flex-basis: 100%; order: 10; }
+.add-custom-link-btn { margin-top: 6px; }
+
+.exclusion-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.exclusion-row input[type="checkbox"] { margin: 0; }
+
+.icon-field-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+.icon-field-preview { font-size: 1.3rem; width: 24px; text-align: center; flex-shrink: 0; }
+.icon-field-input { width: 140px; }
+.icon-picker-popover {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 20;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 8px; width: 220px; flex-wrap: wrap; gap: 4px; max-height: 200px; overflow-y: auto;
+}
+.icon-picker-popover.open { display: flex; }
+.icon-pick-btn {
+  background: transparent; border: 1px solid transparent; border-radius: 6px; color: var(--text);
+  padding: 6px; cursor: pointer; font-size: 1.05rem;
+}
+.icon-pick-btn:hover { border-color: var(--border); background: var(--bg); }
+
+.color-field-wrap { display: flex; align-items: center; gap: 6px; }
+.color-field-wrap input[type="color"] { width: 32px; height: 28px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: none; }
+.color-field-input { width: 90px; }
+
+.guide-row {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+}
+.guide-row input[type="text"] { flex: 1 1 160px; margin: 0; }
+.add-guide-btn { margin-top: 6px; }
+
+.companion-service {
+  margin-top: 12px; padding: 10px 12px 2px; border-top: 1px dashed var(--border);
+}
+.companion-service-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }

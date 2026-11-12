@@ -1,0 +1,33 @@
+services:
+  marquee:
+    # Swap for `build: .` if you're building from source instead of pulling.
+    image: ghcr.io/jbuxxy/marquee:latest
+    container_name: marquee
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config:/config
+    env_file:
+      - .env
+    # Run marquee behind your existing reverse proxy (Traefik / Nginx Proxy
+    # Manager / Caddy) for TLS termination, and set TRUST_PROXY=true in .env
+    # when you do, so session cookies get the Secure flag correctly.
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8080/healthz', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # Optional — visitor logins (Plex/Jellyfin) survive a marquee restart if
+  # this is present, and are lost on restart (as before) if it isn't. Point
+  # marquee at it by setting REDIS_URL (and REDIS_PASSWORD, if you set one
+  # below) in .env, e.g. REDIS_URL=redis://redis:6379.
+  # redis:
+  #   image: redis:alpine
+  #   container_name: marquee-redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./redis-data:/data
+  #   command: redis-server --save 60 1

@@ -1,0 +1,36 @@
+#np-map-panel {
+  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%) translateY(100%);
+  width: min(820px, 100vw); height: var(--map-height, 380px); background: var(--bg-elevated);
+  border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: var(--shadow); z-index: 550; transition: transform 0.3s ease; display: flex; flex-direction: column;
+}
+#np-map-panel.open { transform: translateX(-50%) translateY(0); max-height: var(--map-height, 380px); }
+
+#np-map-header { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); cursor: ns-resize; }
+.np-map-mode-wrap { display: flex; gap: 6px; }
+.np-map-mode-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 999px;
+  padding: 3px 12px; font-size: 0.78rem; cursor: pointer;
+}
+.np-map-mode-btn.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.np-network-style-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 999px;
+  padding: 3px 12px; font-size: 0.78rem; cursor: pointer;
+}
+.np-map-status { flex: 1; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+.np-map-close-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; }
+
+#np-map-container { flex: 1; position: relative; overflow: hidden; }
+#np-geo-div, #np-network-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.np-geo-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: rgba(41, 171, 226, 0.9);
+  box-shadow: 0 0 8px rgba(41, 171, 226, 0.8); border: 1px solid #fff;
+}
+.np-geo-dot-home { background: rgba(160, 200, 230, 0.95); }
+.np-geo-dot-group { display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; font-weight: 700; }
+
+.np-geo-popup { display: flex; flex-direction: column; gap: 6px; font-size: 0.78rem; }
+.np-geo-popup-row { display: flex; flex-direction: column; gap: 1px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.np-geo-popup-row:last-child { border-bottom: none; padding-bottom: 0; }
+.np-geo-popup-svc { color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase; }

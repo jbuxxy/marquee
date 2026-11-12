@@ -1,0 +1,164 @@
+/* Now-playing ticker bar, waveform, and per-card ambient wave. Uses the base
+   theme variables (no per-theme glow palettes), so it looks right in every
+   theme without extra rules. */
+
+.now-playing-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.now-playing-bar.visible { opacity: 1; pointer-events: auto; }
+/* Once dragged, the bar is positioned via left/top instead of the centering
+   transform, so only a small reveal offset is left to animate on show/hide. */
+.now-playing-bar.np-dragged { transform: translateY(6px); }
+.now-playing-bar.np-dragged.visible { transform: translateY(0); }
+
+.np-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.np-drag-handle { display: flex; align-items: center; flex-shrink: 0; cursor: grab; user-select: none; -webkit-user-select: none; opacity: 0.4; color: var(--text-muted); }
+.np-drag-handle:active { cursor: grabbing; }
+.np-live { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.np-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); }
+.np-header-spacer { flex: 1; }
+.np-header button {
+  background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+  padding: 2px 6px; border-radius: 6px; font-size: 0.9rem; line-height: 1;
+}
+.np-header button:hover { color: var(--text); background: var(--bg); }
+.np-header button.active { color: var(--accent); }
+
+.np-bar-content { display: flex; align-items: center; gap: 8px; padding: 8px 12px; position: relative; overflow: hidden; }
+.np-icon { flex-shrink: 0; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+.np-thumb { width: 30px; height: 30px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.np-ticker { flex: 1; overflow: hidden; position: relative; height: 1.3em; }
+.np-ticker-slide { position: absolute; inset: 0; display: flex; align-items: center; }
+.np-ticker-inner { white-space: nowrap; font-size: 0.85rem; }
+.np-ticker-inner.np-scroll, .np-ticker-inner.np-scroll-loop {
+  animation-name: np-scroll; animation-timing-function: linear; animation-iteration-count: infinite;
+  animation-duration: var(--np-scroll-duration, 8s);
+}
+@keyframes np-scroll { from { transform: translateX(0); } to { transform: translateX(var(--np-scroll-dist, -100px)); } }
+.np-entry em { font-style: normal; color: var(--text-muted); }
+
+.np-dots { display: flex; gap: 4px; flex-shrink: 0; }
+.np-dot-pip { width: 6px; height: 6px; border-radius: 50%; background: var(--border); cursor: pointer; }
+.np-dot-pip.active { background: rgb(var(--np-dot-rgb, 99, 102, 241)); }
+
+.np-progress-sliver { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--border); }
+.np-progress-sliver-fill { height: 100%; background: rgb(var(--np-progress-rgb, 99, 102, 241)); transition: width 1s linear; }
+
+.np-expand-panel { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+.np-body.expanded .np-expand-panel { max-height: 260px; overflow-y: auto; }
+.np-expand-inner { padding: 4px 12px 10px; }
+.np-expand-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 4px; cursor: pointer;
+  border-left: 2px solid rgb(var(--np-row-rgb, 99, 102, 241)); padding-left: 8px; margin-bottom: 4px; border-radius: 4px;
+}
+.np-expand-row:hover { background: var(--bg); }
+.np-expand-thumb { width: 26px; height: 26px; border-radius: 4px; object-fit: cover; background: var(--bg); flex-shrink: 0; }
+.np-expand-icon { flex-shrink: 0; width: 16px; }
+.np-expand-row-ticker { flex: 1; overflow: hidden; font-size: 0.8rem; }
+.np-expand-paused { font-size: 0.68rem; color: var(--text-muted); }
+.np-expand-empty { color: var(--text-muted); font-size: 0.85rem; padding: 8px; text-align: center; }
+
+.np-revive {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+  display: none; align-items: center; gap: 6px;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 999px;
+  padding: 6px 14px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; z-index: 500;
+}
+.np-revive.visible { display: flex; }
+
+/* ── Stream detail popup ─────────────────────────────────────────────── */
+#np-detail-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center;
+  z-index: 600; opacity: 0; transition: opacity 0.25s; padding: 16px;
+}
+#np-detail-overlay.open { opacity: 1; }
+.np-detail-card {
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); width: min(420px, 100%); max-height: 85vh; overflow-y: auto;
+}
+.np-detail-header { position: relative; }
+.np-detail-backdrop-empty { height: 90px; background: var(--bg); }
+.np-detail-backdrop { width: 100%; height: 130px; object-fit: cover; display: block; }
+.np-detail-close {
+  position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.5); color: #fff; border: none;
+  border-radius: 50%; width: 26px; height: 26px; cursor: pointer;
+}
+.np-detail-header-content { display: flex; gap: 12px; padding: 0 16px; margin-top: -36px; }
+.np-detail-poster, .np-detail-poster-empty { width: 72px; height: 108px; border-radius: 6px; object-fit: cover; background: var(--bg-elevated); border: 2px solid var(--bg-elevated); display: flex; align-items: center; justify-content: center; }
+.np-detail-poster-square { width: 72px; height: 72px; }
+.np-detail-title-block { padding-top: 40px; }
+.np-detail-title { font-weight: 600; font-size: 1rem; }
+.np-detail-author { font-size: 0.72rem; color: var(--text-muted); font-style: italic; }
+.np-detail-attrs { display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+.np-detail-genres { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.np-detail-overview { padding: 10px 16px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.np-detail-section { padding: 8px 16px 12px; border-top: 1px solid var(--border); }
+.np-detail-section-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+.np-detail-stream-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+.np-detail-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); }
+.np-detail-state-badge { font-size: 0.68rem; padding: 1px 6px; border-radius: 999px; background: var(--border); }
+.np-detail-playback-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.np-detail-playback-time { font-size: 0.68rem; color: var(--text-muted); }
+.np-detail-ring-bg { stroke: var(--border); }
+.np-detail-tautulli { padding: 8px 16px 12px; border-top: 1px solid var(--border); }
+.np-detail-stats-row { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.75rem; color: var(--text-muted); }
+.np-detail-links { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.np-detail-link {
+  display: flex; align-items: center; gap: 5px; font-size: 0.78rem; padding: 5px 10px;
+  border: 1px solid var(--border); border-radius: 999px; color: var(--text); text-decoration: none;
+}
+.np-detail-link:hover { border-color: var(--accent); }
+
+/* ── Header waveform ─────────────────────────────────────────────────── */
+.waveform-section { margin-top: 0; }
+.ekg-wrap { position: relative; height: 40px; }
+#ekg-canvas { width: 100%; height: 100%; display: block; }
+#ekg-mode-btn {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem;
+}
+#ekg-mode-btn:hover { color: var(--text); }
+
+/* ── Per-card ambient wave ───────────────────────────────────────────── */
+.watch-card { position: relative; overflow: hidden; }
+.watch-wave { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+.watch-wave.active { opacity: 1; }
+.stream-badge {
+  margin-left: auto; font-size: 0.68rem; padding: 1px 7px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-contrast); display: none;
+}
+.stream-badge.visible { display: inline-block; }
+
+/* ── Minimal media-type glyphs (mediaIconHTML) ──────────────────────── */
+.np-play, .np-tv { display: inline-flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.np-play span:first-child {
+  width: 0; height: 0; border-style: solid; border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent currentColor;
+}
+.np-tv span:first-child { width: 16px; height: 11px; border: 2px solid currentColor; border-radius: 2px; }
+.np-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.np-eq span { width: 3px; background: currentColor; border-radius: 1px; animation: np-eq-bounce 0.9s ease-in-out infinite; }
+.np-eq span:nth-child(1) { height: 40%; animation-delay: 0s; }
+.np-eq span:nth-child(2) { height: 100%; animation-delay: 0.15s; }
+.np-eq span:nth-child(3) { height: 60%; animation-delay: 0.3s; }
+.np-eq span:nth-child(4) { height: 80%; animation-delay: 0.45s; }
+@keyframes np-eq-bounce { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+.np-book-wrap, .np-book { display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }

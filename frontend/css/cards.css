@@ -1,0 +1,137 @@
+.dashboard-section { margin-top: 8px; }
+
+/* Section divider: a centered, uppercase, letter-spaced label
+   flanked by hairlines, replacing a plain left-aligned underlined <h2>. */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 28px 0 16px;
+}
+.section-divider .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+.section-divider h2 {
+  margin: 0;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--text-muted); white-space: nowrap;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.cards-grid {
+  /* auto-fit (not auto-fill): with fewer cards than fit in a row, their
+     column tracks collapse instead of leaving empty reserved columns, so
+     existing cards actually grow to fill the row rather than sitting
+     cramped at the left — e.g. a single connected service gets one wide
+     card, not one narrow card next to dead space. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.service-card {
+  position: relative;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-card .card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.service-card h3 { margin: 0; font-size: 1.05rem; }
+.service-card p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+.service-card .card-desc { font-size: 0.82rem; }
+.service-card .card-status { font-size: 0.82rem; }
+.service-card .card-actions { margin-top: auto; display: flex; gap: 8px; }
+.service-card .card-actions a { text-decoration: none; }
+.service-card .card-actions .secondary { font-size: 0.85rem; padding: 6px 12px; }
+
+/* Colored health indicator, top-right of the card rather than inline next to
+   the title. */
+.status-dot {
+  position: absolute; top: 14px; right: 14px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+.status-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-dot.offline { background: var(--danger); }
+
+#requests-list { margin-top: 6px; display: flex; flex-direction: column; gap: 8px; }
+.request-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+}
+.status-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.status-badge.available { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+.status-badge.approved,
+.status-badge.processing { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+
+.empty-state {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 24px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
+
+.custom-link-icon-wrap {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+
+.bookmarks-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 16px 24px 24px;
+}
+.bookmarks-bar .bookmark-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+.bookmarks-bar .bookmark-link:hover { color: var(--text); border-color: var(--accent); }
+.bookmarks-bar .bookmark-link i { font-size: 0.95rem; }
+
+/* Guides — resource-dock pills (admin-uploaded PDFs) + static "need access" card */
+.resource-dock { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.resource-pill {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text); flex: 1 1 220px; min-width: 200px;
+}
+a.resource-pill:hover { border-color: var(--pill-color, var(--accent)); }
+.resource-pill-icon { font-size: 1.2rem; color: var(--pill-color, var(--accent)); flex-shrink: 0; }
+.resource-pill-body { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.resource-pill-label { font-size: 0.88rem; font-weight: 600; }
+.resource-pill-sub { font-size: 0.74rem; color: var(--text-muted); }
+.resource-pill-action { font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.resource-pill.pill-static { cursor: default; }
